@@ -1,0 +1,31 @@
+{
+  "name": "talent-api",
+  "version": "0.1.0",
+  "description": "Backend for Talent Tool",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon ./src/index.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Flare576/talent.git"
+  },
+  "keywords": [
+    "talent",
+    "portal",
+    "r&p"
+  ],
+  "author": "Jeremy Scherer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Flare576/talent/issues"
+  },
+  "homepage": "https://github.com/Flare576/talent#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}

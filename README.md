@@ -1,8 +1,27 @@
 # talent
 Tags, Talent, and Another T Word I'll Come Up With Later
 
-# Journal
+## Project setup
+```
+docker compose up -d
+```
 
+[The UI](http://localhost:8080)
+[The API](http://localhost:3080)
+
+## What, that's it?
+
+Yup. Make changes to /api to update the API, and changes to /ui for... yes, the UI
+
+### Lints and fixes files
+
+Not tested yet (8/15/2021), but running this inside either the `ui` container or the local `ui`
+folder should work
+```
+npm run lint
+```
+
+# Journal
 Got my coffee, got another few hours of quiet, and an idea. Let's see what comes of it.
 
 Firstly, the idea:
@@ -144,3 +163,34 @@ Note: stretch-goal of tracking "viewed notes"
 
 
 Uh... is that it? did I just define the whole tool in about 2h? neat.
+
+## Get it done.. er... started
+
+Decided to give a "quick start" tool a try via [Vue
+CLI](https://cli.vuejs.org/guide/installation.html). Why Vue? Because [I liked what I saw
+here](https://www.youtube.com/watch?v=cuHDQhDhvPE). That gave me a file structure I could spin up
+and see run, but I know I'm going to need a local mysql, api, and UI system, so I also looked for
+[docker compose and
+vue](https://medium.com/bb-tutorials-and-thoughts/vue-js-local-development-with-docker-compose-275304534f7c).
+This is probably going to be where I start.
+
+So, root folders will be "api" and "ui"... something tells me I should go look around our RobotFood
+a bit... but there's a lot there, so I'll get something done, then get it done right.
+
+ok, folders
+
+api
+ |-src
+ |-Dockerfile
+ui
+ |-src
+ |-Dockerfile
+mysql_data
+ |-README.md
+docker-compose.yml
+
+The `mysql_data` thing is a theory I want to try for allowing a bit more persistance beteween
+startup/teardowns; mapped data volume for mysql.
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
