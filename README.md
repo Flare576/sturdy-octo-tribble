@@ -7,6 +7,7 @@ docker compose up -d
 ```
 
 [The UI](http://localhost:8080)
+
 [The API](http://localhost:3080)
 
 ## What, that's it?
@@ -27,7 +28,13 @@ Got my coffee, got another few hours of quiet, and an idea. Let's see what comes
 Firstly, the idea:
 
 A tool that:
-- Integrates with Bamboo for user data
+- System goals
+  - Integrates with Bamboo (Harvest/Forecast?) for user data
+- APL goals
+  - Note taking during APL meetings
+  - Easily hand-off notes when APL assignment changes
+- Allocation team goals
+  - View Roles (special tags)
 - Allows talent and APL's to see a universal set of "tags"
   - Tags can be skills, categories, interests, etc.
   - Tags can have relationships to other tags, such as "is a", "is like", or others
@@ -36,13 +43,16 @@ A tool that:
     "javascript")
   - Provide circular mapping chart, inner circle as "My tags", next layer is "directly related
     tags", then outer layer is tangentally related tags
+  - Non-talent tags: APL and allocation team care about "Roles" and a few other tags that shouldn't
+    be available to talent to add to themselves
   - UNDECIDED: I've had the idea that APLs may want to apply tags to a Talent that would help talent
     assignement but that the talent wouldn't agree with or appreciate ("shy", "opinionated",
-"smarter than they think", etc.). Having a section that only the APL/PL could see would violate my
-goal to provide talent full control, but there's real value there... Not off the table yet.
+    "smarter than they think", etc.)... Not off the table yet.
 - APL will be able to enter notes from meetings with the talent
 - Talent will be able to enter their own career notes
 - Talent will be provided as much control as possible. This means:
+  - This isn't the tool for APL-to-APL communication about talent
+
   - Talent will be able to see all content of their "profile". -- FUTURE JEREMY NOTE: Except the
     APL-assigned tags; these will be used as .... UGH I DON'T LIKE THE FACT THAT IF AN APL FAILS TO
 KEEP THESE UP-TO-DATE THAT THEY COULD BE USED TO TAINT A PROFILE. I'm leaving the feature in for now
@@ -76,29 +86,38 @@ I've used it most recently, so MySql it is for now.
 I don't think we're going to need any other persistence (oAuth via google, no redis, small assets
 for now... no NoSQL), shouldn't need microservices or anything. Oh, will probably want a combination
 of S3 for SPA and Express/Koa for API (tags/notes).
-docker-compose.yml
-```
-mysql
-talent
-```
 
-DB tables
+## DB tables
+
 ```
 talent
 - id
 - email
 - GoogleId -- I think this is how we tie the oAuth; haven't had to set it up before
 - BambooID -- Bamboo also uses Google oAuth, not sure if they have their own thing
+- active   -- Bamboo/Harvest might just stop returning users if they are disabled; we'll want to
+              verify to ensure we can handle deactivated users correctly
 
 tag
 - id
 - name
 - description
+- assignable -- means it's only used to define links; not visible to anyone for talent
+- talent_visibile
+  // Role - not assignable
+  // Frontend - not assignable
+  // Framework - not assignable
+  // JavaScript - assignable, but likely used for "`react` uses `javascript`"
+  // Team Lead - "is a `role`, assignable, not talent_visible
+  // React - "is a `framework`", "uses `javascript`", "is a `frontend`"
 
 note
 - id
+- status - if most recent version is `deleted`, then don't show the note
+- version
 - talent_id -- who it's about
 - content -- encrypted via system SECRET
+- talent_visible -- maybe don't want this: it'd be for some of the same stuff we use Trello for...
 - author_id  -- who wrote it
 
 note_state -- allows soft delete of notes
@@ -113,6 +132,9 @@ talent_apl -- I don't think this is tracked in Bamboo or other system, but if it
 link_type
 - id
 - desc -- react might have "is a <framework>", "is like <angular>", "includes <javascript>"
+  // is a
+  // is like
+  // uses
 
 tag_link
 - tag_id
@@ -124,17 +146,17 @@ talent_tag
 - type -- apl/self
 - skill_level
 - interest_level
-
-Note: this system doesn't include a shared-key solution (yet) to systematically prevent someone with
-DB access from seeing notes; I'm considering that post-mvp right now
 ```
+
+> Note: this system doesn't include a shared-key solution (yet) to systematically prevent someone
+> with DB access from seeing notes; I'm considering that post-mvp right now
 
 That covers the DB. The tool itself should consist of:
 
 - Welcome page
-  - Goal of tool (Define APL, explain problem of talent assignemnt, explain APL switching, explain
+  - Goal of tool (Define APL, explain problem of talent assignment, explain APL switching, explain
     always learning)
-  - Login/My Profile - APL will also see "My Talent"
+- Login/My Profile - APL will also see "My Talent"
   - On my Profile I can see:
     - My "Tag Cloud" (circle graph described above)
       - Hovering over a tag brings up hover tip with relationships
@@ -189,8 +211,16 @@ mysql_data
  |-README.md
 docker-compose.yml
 
-The `mysql_data` thing is a theory I want to try for allowing a bit more persistance beteween
+The `mysql_data` thing is a theory I want to try for allowing a bit more persistence between
 startup/teardowns; mapped data volume for mysql.
+
+## MySQL
+
+I need something to be able to run migration scripts and having whatever does that also able to
+manage my data shape seems neat... but Sequelize and JS-data couldn't handle the relationships
+between talent and notes (two foreign keys to the same table), so for now I'm going to just use
+db-migrate and generate my own SQL CRUD stuff, which I kinda thought might happen with how I want to
+use tag discovery.
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
